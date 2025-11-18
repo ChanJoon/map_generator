@@ -1,6 +1,8 @@
-# ROS2 Map Generator Toolbox
+# ROS2 Map Generator
 
-This package now bundles multiple map generation tools so you can switch between lightweight random forests, parameterized structural maps (kr_param_map-derived), and mockamap-style procedural maps from one ROS2 package.
+| Random forest | Grid map | Structured map | Perlin |
+| --- | --- | --- | --- |
+| <img src="docs/random_forest.png" width="250"> | <img src="docs/structure_map.png" width="250"> | <img src="docs/read_grid_map.png" width="250"> | <img src="docs/perlin.png" width="250">
 
 ## Build
 
