@@ -15,6 +15,10 @@
   <depend>sensor_msgs</depend>
   <depend>nav_msgs</depend>
   <depend>pcl_conversions</depend>
+  <depend>visualization_msgs</depend>
+  <depend>rosbag2_cpp</depend>
+  <depend>SDL</depend>
+  <depend>SDL_image</depend>
 
   <build_depend>Eigen3</build_depend>
   <exec_depend>Eigen3</exec_depend>
