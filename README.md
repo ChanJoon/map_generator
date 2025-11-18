@@ -29,6 +29,7 @@ ros2 launch map_generator mockamap.launch.py type:=1 resolution:=0.1 x_length:=1
 ```
 
 ## Acknowlegement
-
+This repository builds upon the following projects. I appreciate the excellent work of the original contributors.
 - [kr_param_map](https://github.com/KumarRobotics/kr_param_map)
 - [mockamap](https://github.com/HKUST-Aerial-Robotics/mockamap)
+- [Fast-Planner](https://github.com/HKUST-Aerial-Robotics/Fast-Planner)
