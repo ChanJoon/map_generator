@@ -21,6 +21,12 @@ def generate_launch_description():
         "ObstacleShape_z_l": "7.0",
         "ObstacleShape_z_h": "7.0",
         "ObstacleShape_theta": "7.0",
+        "WallShape_lower_width_x": "0.1",
+        "WallShape_upper_width_x": "0.3",
+        "WallShape_lower_width_y": "5.0",
+        "WallShape_upper_width_y": "15.0",
+        "WallShape_lower_height": "0.5",
+        "WallShape_upper_height": "2.0",
         "sensing_radius": "10.0",
         "sensing_rate": "10.0",
     }
@@ -28,6 +34,7 @@ def generate_launch_description():
     int_args = {
         "map_obs_num": "30",
         "map_circle_num": "30",
+        "map_wall_num": "10",
     }
 
     declarations = [DeclareLaunchArgument(name, default_value=val) for name, val in float_args.items()]
@@ -62,6 +69,13 @@ def generate_launch_description():
                         "ObstacleShape/z_l": as_float("ObstacleShape_z_l"),
                         "ObstacleShape/z_h": as_float("ObstacleShape_z_h"),
                         "ObstacleShape/theta": as_float("ObstacleShape_theta"),
+                        "map/wall_num": LaunchConfiguration("map_wall_num"),
+                        "WallShape/lower_width_x": as_float("WallShape_lower_width_x"),
+                        "WallShape/upper_width_x": as_float("WallShape_upper_width_x"),
+                        "WallShape/lower_width_y": as_float("WallShape_lower_width_y"),
+                        "WallShape/upper_width_y": as_float("WallShape_upper_width_y"),
+                        "WallShape/lower_height": as_float("WallShape_lower_height"),
+                        "WallShape/upper_height": as_float("WallShape_upper_height"),
                         "sensing/radius": as_float("sensing_radius"),
                         "sensing/rate": as_float("sensing_rate"),
                     }

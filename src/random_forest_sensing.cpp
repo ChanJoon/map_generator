@@ -39,6 +39,14 @@ public:
     this->declare_parameter("ObstacleShape/z_h", 7.0);
     this->declare_parameter("ObstacleShape/theta", 7.0);
 
+    this->declare_parameter("map/wall_num", 0);
+    this->declare_parameter("WallShape/lower_width_x", 0.1);
+    this->declare_parameter("WallShape/upper_width_x", 0.3);
+    this->declare_parameter("WallShape/lower_width_y", 5.0);
+    this->declare_parameter("WallShape/upper_width_y", 15.0);
+    this->declare_parameter("WallShape/lower_height", 0.5);
+    this->declare_parameter("WallShape/upper_height", 2.0);
+
     this->declare_parameter("sensing/radius", 10.0);
     this->declare_parameter("sensing/rate", 10.0);
 
@@ -60,6 +68,14 @@ public:
     this->get_parameter("ObstacleShape/z_l", z_l_);
     this->get_parameter("ObstacleShape/z_h", z_h_);
     this->get_parameter("ObstacleShape/theta", theta_);
+
+    this->get_parameter("map/wall_num", wall_num_);
+    this->get_parameter("WallShape/lower_width_x", wall_width_x_l_);
+    this->get_parameter("WallShape/upper_width_x", wall_width_x_h_);
+    this->get_parameter("WallShape/lower_width_y", wall_width_y_l_);
+    this->get_parameter("WallShape/upper_width_y", wall_width_y_h_);
+    this->get_parameter("WallShape/lower_height", wall_height_l_);
+    this->get_parameter("WallShape/upper_height", wall_height_h_);
 
     this->get_parameter("sensing/radius", _sensing_range);
     this->get_parameter("sensing/rate", _sense_rate);
@@ -117,6 +133,9 @@ private:
   int circle_num_;
   double radius_l_, radius_h_, z_l_, z_h_;
   double theta_;
+  int wall_num_;
+  double wall_width_x_l_, wall_width_x_h_, wall_width_y_l_, wall_width_y_h_;
+  double wall_height_l_, wall_height_h_;
   uniform_real_distribution<double> rand_radius_;
   uniform_real_distribution<double> rand_radius2_;
   uniform_real_distribution<double> rand_theta_;
@@ -147,15 +166,14 @@ private:
     rand_ground_height = uniform_real_distribution<double>(-0.1, 0.1);
     // generate ground
 
-    // for(double i = -_x_size / 2.0; i <= _x_size / 2.0; i += _resolution){
-    //   for(double j = -_y_size / 2.0; j <= _y_size / 2.0; j += _resolution){
-    //   pt_random.x = i;
-    //   pt_random.y = j;
-    //   // pt_random.z = -0.2 + rand_ground_height(eng);
-    //   pt_random.z = -0.2;
-    //   cloudMap.points.push_back(pt_random);
-    //   }
-    // }
+    for(double i = -_x_size / 2.0; i <= _x_size / 2.0; i += _resolution){
+      for(double j = -_y_size / 2.0; j <= _y_size / 2.0; j += _resolution){
+      pt_random.x = i;
+      pt_random.y = j;
+      pt_random.z = -0.2 + rand_ground_height(eng);
+      cloudMap.points.push_back(pt_random);
+      }
+    }
 
     // generate polar obs
     for (int i = 0; i < _obs_num; i++)
@@ -196,26 +214,52 @@ private:
           }
         }
     }
-    // generate barrier obs
-    double x, y, w_x, w_y, h;
-    x = 0, y = 0;
-    w_x = 0.2;
-    w_y = 20;
-    h = 1;
-    double widNum_x = (w_x / _resolution);
-    double widNum_y = (w_y / _resolution);
-    for (int r = -widNum_x / 2.0; r <= widNum_x / 2.0; r++)
-      for (int s = -widNum_y / 2.0; s <= widNum_y / 2.0; s++)
+    // generate random wall obstacles
+    uniform_real_distribution<double> rand_wall_width_x(wall_width_x_l_, wall_width_x_h_);
+    uniform_real_distribution<double> rand_wall_width_y(wall_width_y_l_, wall_width_y_h_);
+    uniform_real_distribution<double> rand_wall_height(wall_height_l_, wall_height_h_);
+    
+    for (int i = 0; i < wall_num_; i++)
+    {
+      double x, y, w_x, w_y, h;
+      x = rand_x(eng);
+      y = rand_y(eng);
+      w_x = rand_wall_width_x(eng);
+      w_y = rand_wall_width_y(eng);
+      h = rand_wall_height(eng);
+
+      // Skip if too close to initial position
+      if (sqrt(pow(x - _init_x, 2) + pow(y - _init_y, 2)) < 2.0)
       {
-        int heiNum = ceil(h / _resolution);
-        for (int t = -0.2; t < heiNum; t++)
-        {
-          pt_random.x = x + (r + 0.1) * _resolution + 1e-2;
-          pt_random.y = y + (s + 0.1) * _resolution + 1e-2;
-          pt_random.z = (t + 0.1) * _resolution + 1e-2;
-          cloudMap.points.push_back(pt_random);
-        }
+        i--;
+        continue;
       }
+
+      // Skip if too close to goal position
+      if (sqrt(pow(x - 19.0, 2) + pow(y - 0.0, 2)) < 2.0)
+      {
+        i--;
+        continue;
+      }
+
+      x = floor(x / _resolution) * _resolution + _resolution / 2.0;
+      y = floor(y / _resolution) * _resolution + _resolution / 2.0;
+
+      double widNum_x = (w_x / _resolution);
+      double widNum_y = (w_y / _resolution);
+      for (int r = -widNum_x / 2.0; r <= widNum_x / 2.0; r++)
+        for (int s = -widNum_y / 2.0; s <= widNum_y / 2.0; s++)
+        {
+          int heiNum = ceil(h / _resolution);
+          for (int t = -0.2; t < heiNum; t++)
+          {
+            pt_random.x = x + (r + 0.1) * _resolution + 1e-2;
+            pt_random.y = y + (s + 0.1) * _resolution + 1e-2;
+            pt_random.z = (t + 0.1) * _resolution + 1e-2;
+            cloudMap.points.push_back(pt_random);
+          }
+        }
+    }
     // generate wall obs
     // x = 0, y = -2.0;
     // w_x = 20;
